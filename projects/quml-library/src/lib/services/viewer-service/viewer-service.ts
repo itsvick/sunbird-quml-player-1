@@ -67,7 +67,7 @@ export class ViewerService {
       progressBar: [],
       questions: [],
       questionIds: [],
-      lastQuestionId: '',
+      lastQuestion: {},
     };
     this.loadingProgress = 0;
     this.endPageSeen = false;

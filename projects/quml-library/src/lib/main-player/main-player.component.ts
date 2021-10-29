@@ -243,6 +243,11 @@ export class MainPlayerComponent implements OnInit {
     }
   }
 
+  onChangeQuestion(event) {
+    console.log('activeSection', this.activeSection);
+    console.log('onChangeQuestion', event);
+  }
+
   onPlayerEvent(event) {
     this.playerEvent.emit(event);
   }

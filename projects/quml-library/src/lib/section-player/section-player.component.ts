@@ -30,6 +30,7 @@ export class SectionPlayerComponent implements OnChanges {
   @Output() score = new EventEmitter<any>();
   @Output() summary = new EventEmitter<any>();
   @Output() showScoreBoard = new EventEmitter<any>();
+  @Output() changeQuestion = new EventEmitter<any>();
 
   @ViewChild('myCarousel', { static: false }) myCarousel: CarouselComponent;
   @ViewChild('imageModal', { static: true }) imageModal;
@@ -97,6 +98,7 @@ export class SectionPlayerComponent implements OnChanges {
   imageZoomCount = 100;
   replayed = false;
   sectionId: string;
+  showRootInstruction = true;
 
   constructor(
     public viewerService: ViewerService,
@@ -156,6 +158,7 @@ export class SectionPlayerComponent implements OnChanges {
             this.currentQuestionsMedia = this.questions[this.currentSlideIndex - 1]?.media;
             this.setImageZoom();
           }
+		  this.changeQuestion.emit(this.questions[this.myCarousel.getCurrentSlideIndex() - 1]);
         }
 
         if (this.currentSlideIndex === 0) {
@@ -231,6 +234,7 @@ export class SectionPlayerComponent implements OnChanges {
     } else if (this.threshold > 1) {
       this.viewerService.getQuestions();
     }
+	this.changeQuestion.emit(this.questions[this.myCarousel.getCurrentSlideIndex() - 1]);
   }
 
   sortQuestions() {
@@ -295,6 +299,7 @@ export class SectionPlayerComponent implements OnChanges {
     this.setImageZoom();
     this.resetQuestionState();
     this.clearTimeInterval();
+	this.changeQuestion.emit(this.questions[this.myCarousel.getCurrentSlideIndex() - 1]);
   }
 
   prevSlide() {
@@ -315,6 +320,7 @@ export class SectionPlayerComponent implements OnChanges {
     this.currentSlideIndex = this.myCarousel.getCurrentSlideIndex();
     this.active = this.currentSlideIndex === 0 && this.sectionIndex === 0 && this.showStartPage;
     this.currentQuestionsMedia = _.get(this.questions[this.myCarousel.getCurrentSlideIndex() - 1], 'media');
+	  this.changeQuestion.emit(this.questions[this.myCarousel.getCurrentSlideIndex() - 1]);
     this.setImageZoom();
     this.setSkippedClass(this.myCarousel.getCurrentSlideIndex() - 1);
   }
@@ -347,6 +353,10 @@ export class SectionPlayerComponent implements OnChanges {
   }
 
   nextSlideClicked(event) {
+    if (this.showRootInstruction) {
+      this.showRootInstruction = false;
+      return;
+    }
     if (this.myCarousel.getCurrentSlideIndex() === 0) {
       return this.nextSlide();
     }
@@ -391,6 +401,7 @@ export class SectionPlayerComponent implements OnChanges {
   }
 
   jumpToSection(identifier: string) {
+    this.showRootInstruction = false;
     this.emitSectionEnd(false, identifier);
   }
 
@@ -594,6 +605,7 @@ export class SectionPlayerComponent implements OnChanges {
       this.optionSelectedObj = undefined;
       this.myCarousel.selectSlide(0);
       this.active = this.currentSlideIndex === 0 && this.sectionIndex === 0 && this.showStartPage;
+      this.showRootInstruction = true;
       return;
     }
     this.currentQuestionsMedia = _.get(this.questions[this.currentSlideIndex - 1], 'media');
@@ -609,6 +621,7 @@ export class SectionPlayerComponent implements OnChanges {
       this.myCarousel.selectSlide(index);
     }
     this.setImageZoom();
+	this.changeQuestion.emit(this.questions[this.myCarousel.getCurrentSlideIndex() - 1]);
     this.currentSolutions = undefined;
   }
 
@@ -620,6 +633,7 @@ export class SectionPlayerComponent implements OnChanges {
     this.viewerService.getQuestions(0, index);
     this.currentSlideIndex = index;
     this.myCarousel.selectSlide(index);
+	this.changeQuestion.emit(this.questions[this.myCarousel.getCurrentSlideIndex() - 1]);
   }
 
   getSolutions() {
@@ -659,6 +673,7 @@ export class SectionPlayerComponent implements OnChanges {
     this.viewerService.raiseHeartBeatEvent(eventName.solutionClosed, TelemetryType.interact, this.myCarousel.getCurrentSlideIndex());
     this.showSolution = false;
     this.myCarousel.selectSlide(this.currentSlideIndex);
+	this.changeQuestion.emit(this.questions[this.myCarousel.getCurrentSlideIndex() - 1]);
   }
 
   viewHint() {
